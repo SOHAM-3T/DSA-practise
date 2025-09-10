@@ -1,41 +1,43 @@
 import java.util.*;
 class Leet1733 {
-  public int minimumTeachings(int n, int[][] languages, int[][] friendships) {
-    List<Set<Integer>> languageSets = new ArrayList<>();
-    Set<Integer> needTeach = new HashSet<>();
-    Map<Integer, Integer> languageCount = new HashMap<>();
-
-    for (int[] language : languages)
-      languageSets.add(new HashSet<>(Arrays.stream(language).boxed().toList()));
-
-    // Find friends that can't communicate.
-    for (int[] friendship : friendships) {
-      final int u = friendship[0] - 1;
-      final int v = friendship[1] - 1;
-      if (cantTalk(languageSets, u, v)) {
-        needTeach.add(u);
-        needTeach.add(v);
-      }
+    public int minimumTeachings(int n, int[][] languages, int[][] friendships) {
+        // Find all users who cannot currently communicate with their friends
+        Set<Integer> problematicUsers = new HashSet<>();       
+        for (int[] friendship : friendships) {
+            int u = friendship[0] - 1; // convert to 0-based
+            int v = friendship[1] - 1;       
+            // Create a Set to gather common languages which can be used to find if 
+            // v can can communicate with u
+            Set<Integer> uLangs = new HashSet<>();
+            for (int lang : languages[u]) {
+                uLangs.add(lang);
+            }        
+            boolean canCommunicate = false; //Logic to find if user u and v can communicate
+            for (int lang : languages[v]) {
+                if (uLangs.contains(lang)) {
+                    canCommunicate = true;
+                    break;
+                }
+            }         
+            // If they cannot communicate, mark both users in problematicUsers
+            if (!canCommunicate) {
+                problematicUsers.add(u);
+                problematicUsers.add(v);
+            }
+        }
+        
+        // Find the most known language
+        int[] languageCount = new int[n + 1]; // language index: 1..n
+        int maxAlreadyKnown = 0;
+        
+        for (int user : problematicUsers) {
+            for (int lang : languages[user]) {
+                languageCount[lang]++;
+                maxAlreadyKnown = Math.max(maxAlreadyKnown, languageCount[lang]);
+            }
+        }
+        
+        // Minimum users to teach 
+        return problematicUsers.size() - maxAlreadyKnown;
     }
-
-    // Find the most popular language.
-    for (int u : needTeach)
-      for (final int language : languageSets.get(u))
-        languageCount.merge(language, 1, Integer::sum);
-
-    // Teach the most popular language to people who don't understand.
-    int maxCount = 0;
-    for (int freq : languageCount.values())
-      maxCount = Math.max(maxCount, freq);
-
-    return needTeach.size() - maxCount;
-  }
-
-  // Returns true if u can't talk with v.
-  private boolean cantTalk(List<Set<Integer>> languageSets, int u, int v) {
-    for (int language : languageSets.get(u))
-      if (languageSets.get(v).contains(language))
-        return false;
-    return true;
-  }
 }
