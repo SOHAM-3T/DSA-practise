@@ -1,0 +1,17 @@
+class Solution {
+  public double myPow(double x, long n) {
+    if (n == 0)
+      return 1;
+    if (n < 0)
+      return 1 / myPow(x, -n);
+    if (n % 2 == 1)
+      return x * myPow(x, n - 1);
+    double a = myPow(x , n / 2);
+    return a*a;
+  }
+}
+
+/*     ____
+x^n = | x^(n/2).x^(n/2)
+      | x.x^(n-1)
+*/
