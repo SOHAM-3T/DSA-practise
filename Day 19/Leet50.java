@@ -10,8 +10,3 @@ class Solution {
     return a*a;
   }
 }
-
-/*     ____
-x^n = | x^(n/2).x^(n/2)
-      | x.x^(n-1)
-*/
